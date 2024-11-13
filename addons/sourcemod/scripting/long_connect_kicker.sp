@@ -10,7 +10,7 @@ public Plugin myinfo =
     author      = "TouchMe",
     description = "Kick connecting players if takes too long",
     version     = "build0001",
-    url         = ""
+    url         = "https://github.com/TouchMe-Inc/long_connect_kicker"
 };
 
 
