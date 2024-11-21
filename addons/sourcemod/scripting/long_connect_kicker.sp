@@ -9,19 +9,18 @@ public Plugin myinfo =
     name        = "LongConnectKicker",
     author      = "TouchMe",
     description = "Kick connecting players if takes too long",
-    version     = "build0001",
+    version     = "build0002",
     url         = "https://github.com/TouchMe-Inc/long_connect_kicker"
 };
 
 
-ConVar g_cvKickDelay;
-Handle g_hPlayerTimers[MAXPLAYERS + 1];
+ConVar g_cvKickDelay = null;
+Handle g_hPlayerTimers[MAXPLAYERS + 1] = {null, ...};
 
 /**
  * Called when the plugin starts
  */
 public void OnPluginStart() {
-    // Create a ConVar to set the delay before kicking a player
     g_cvKickDelay = CreateConVar("sm_long_connect_kick_delay", "75.0", "Kick player after this many seconds if they are still connecting to server", _, true, 60.0);
 }
 
@@ -30,7 +29,7 @@ public void OnPluginStart() {
  * @param iClient The client index
  */
 public void OnClientDisconnect(int iClient) {
-    ClearPlayerTimer(iClient);
+    delete g_hPlayerTimers[iClient];
 }
 
 /**
@@ -38,7 +37,7 @@ public void OnClientDisconnect(int iClient) {
  * @param iClient The client index
  */
 public void OnClientPutInServer(int iClient) {
-    ClearPlayerTimer(iClient);
+    delete g_hPlayerTimers[iClient];
 }
 
 /**
@@ -47,7 +46,7 @@ public void OnClientPutInServer(int iClient) {
  */
 public void OnClientConnected(int iClient)
 {
-    ClearPlayerTimer(iClient);
+    delete g_hPlayerTimers[iClient];
 
     if (IsFakeClient(iClient)) {
         return;
@@ -65,7 +64,7 @@ public void OnClientConnected(int iClient)
 Action Timer_LongConnectKick(Handle hTimer, int iClient)
 {
     // Clear the timer handle
-    ClearPlayerTimer(iClient);
+    delete g_hPlayerTimers[iClient];
 
     // If the client is no longer connected
     if (!IsClientConnected(iClient)) {
@@ -78,17 +77,4 @@ Action Timer_LongConnectKick(Handle hTimer, int iClient)
     }
 
     return Plugin_Continue;
-}
-
-/**
- * Clears the timer for a player
- * @param iClient The client index
- */
-void ClearPlayerTimer(int iClient)
-{
-    if (g_hPlayerTimers[iClient] != INVALID_HANDLE)
-    {
-        CloseHandle(g_hPlayerTimers[iClient]);
-        g_hPlayerTimers[iClient] = INVALID_HANDLE;
-    }
 }
