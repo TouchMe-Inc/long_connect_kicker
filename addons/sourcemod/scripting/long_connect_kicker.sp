@@ -28,8 +28,11 @@ public void OnPluginStart() {
  * Called when a client disconnects from the server
  * @param iClient The client index
  */
-public void OnClientDisconnect(int iClient) {
-    delete g_hPlayerTimers[iClient];
+public void OnClientDisconnect(int iClient)
+{
+    if (g_hPlayerTimers[iClient] != null) {
+        delete g_hPlayerTimers[iClient];
+    }
 }
 
 /**
@@ -46,8 +49,6 @@ public void OnClientPutInServer(int iClient) {
  */
 public void OnClientConnected(int iClient)
 {
-    delete g_hPlayerTimers[iClient];
-
     if (IsFakeClient(iClient)) {
         return;
     }
@@ -63,18 +64,17 @@ public void OnClientConnected(int iClient)
  */
 Action Timer_LongConnectKick(Handle hTimer, int iClient)
 {
-    // Clear the timer handle
-    delete g_hPlayerTimers[iClient];
+    g_hPlayerTimers[iClient] = null;
 
     // If the client is no longer connected
     if (!IsClientConnected(iClient)) {
-        return Plugin_Continue;
+        return Plugin_Stop;
     }
 
     // Kick the player if they are still not in the game and not in the kick queue
     if (!IsClientInGame(iClient) && !IsClientInKickQueue(iClient)) {
-        KickClient(iClient, "Kicked.\nYour connecting time into server takes longer than %0.0f seconds", GetConVarFloat(g_cvKickDelay));
+        KickClient(iClient, "Your connecting time into server takes longer than %0.0f seconds", GetConVarFloat(g_cvKickDelay));
     }
 
-    return Plugin_Continue;
+    return Plugin_Stop;
 }
